@@ -1,0 +1,248 @@
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f8fafc;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --text-soft: #71717a;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --danger: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18181b;
+    --bg-soft: #212124;
+    --border: #34343a;
+    --text: #f4f4f5;
+    --text-soft: #a1a1aa;
+    --accent: #60a5fa;
+    --accent-soft: #1e293b;
+    --danger: #fca5a5;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  max-height: 580px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+main {
+  overflow-y: auto;
+  padding: 10px 12px;
+  flex: 1;
+}
+
+.status {
+  margin: 12px 4px;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 4px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-soft);
+}
+
+.hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.table-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.table-item {
+  width: 100%;
+  display: block;
+  padding: 8px 10px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.table-item:hover,
+.table-item:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.table-item[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.table-item .name {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-item .meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-scroll {
+  max-height: 190px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+#preview {
+  border-collapse: collapse;
+  font-size: 11px;
+  width: max-content;
+  min-width: 100%;
+}
+
+#preview th,
+#preview td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#preview th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-soft);
+  text-align: left;
+  font-weight: 600;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+  background: var(--bg-soft);
+}
+
+.export-row {
+  display: flex;
+  gap: 6px;
+}
+
+select {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+button {
+  padding: 6px 12px;
+  font: inherit;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.icon-button {
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.toast {
+  margin: 8px 0 0;
+  min-height: 14px;
+  font-size: 11px;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

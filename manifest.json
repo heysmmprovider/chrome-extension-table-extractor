@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Table Extractor — Export Web Tables to CSV, JSON & More",
+  "version": "1.0.0",
+  "description": "Detect every table on a page, pick the one you need, and export it as CSV, TSV, JSON, Markdown or HTML. No sign-up, no servers.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_title": "Table Extractor",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

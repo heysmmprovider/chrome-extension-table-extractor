@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Table Extractor</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="brand">
+        <img src="../../icons/icon32.png" alt="" width="20" height="20" />
+        <h1>Table Extractor</h1>
+      </div>
+      <button id="rescan" class="icon-button" type="button" title="Scan the page again">
+        Rescan
+      </button>
+    </header>
+
+    <main id="main">
+      <p id="status" class="status">Scanning this page…</p>
+
+      <section id="picker" class="picker" hidden>
+        <h2 class="section-title">
+          <span id="table-count"></span>
+          <span class="hint">click to select</span>
+        </h2>
+        <ul id="table-list" class="table-list"></ul>
+      </section>
+
+      <section id="preview-panel" class="preview-panel" hidden>
+        <h2 class="section-title">
+          Preview <span id="preview-meta" class="hint"></span>
+        </h2>
+        <div class="preview-scroll"><table id="preview"></table></div>
+      </section>
+    </main>
+
+    <footer id="footer" class="footer" hidden>
+      <div class="export-row">
+        <label class="visually-hidden" for="format">Export format</label>
+        <select id="format">
+          <option value="csv">CSV (.csv)</option>
+          <option value="json">JSON (.json)</option>
+          <option value="tsv">TSV (.tsv)</option>
+          <option value="markdown">Markdown (.md)</option>
+          <option value="html">HTML (.html)</option>
+        </select>
+        <button id="download" class="primary" type="button">Download</button>
+        <button id="copy" class="secondary" type="button" title="Copy to clipboard">
+          Copy
+        </button>
+      </div>
+      <p id="toast" class="toast" role="status" aria-live="polite"></p>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

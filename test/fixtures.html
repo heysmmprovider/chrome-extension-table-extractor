@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Table Extractor — test fixtures</title>
+    <style>
+      body { font: 14px/1.5 system-ui, sans-serif; margin: 2rem; max-width: 900px; }
+      table { border-collapse: collapse; margin-bottom: 2rem; }
+      th, td { border: 1px solid #d4d4d8; padding: 6px 10px; text-align: left; }
+      th { background: #f4f4f5; }
+      .grid { display: table; border-collapse: collapse; margin-bottom: 2rem; }
+      .grid [role="row"] { display: table-row; }
+      .grid [role="cell"], .grid [role="columnheader"] {
+        display: table-cell; border: 1px solid #d4d4d8; padding: 6px 10px;
+      }
+      #results { background: #f4f4f5; padding: 1rem; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Table Extractor test fixtures</h1>
+    <p>
+      Load this page with the extension installed and open the popup — it should
+      list seven tables (fixture 5 contains a nested one). The single-cell layout
+      table and the hidden table must not appear.
+    </p>
+
+    <h2>1. Plain table with a header row</h2>
+    <table>
+      <thead>
+        <tr><th>Product</th><th>Price</th><th>Stock</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Widget</td><td>$9.99</td><td>142</td></tr>
+        <tr><td>Gadget, deluxe</td><td>$24.50</td><td>0</td></tr>
+        <tr><td>He said "hi"</td><td>$1.00</td><td>7</td></tr>
+      </tbody>
+    </table>
+
+    <h2>2. Spans: colspan, rowspan and a two-row header</h2>
+    <table>
+      <caption>Quarterly revenue</caption>
+      <thead>
+        <tr><th rowspan="2">Region</th><th colspan="2">2024</th></tr>
+        <tr><th>Q1</th><th>Q2</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="2">EMEA</td><td>120</td><td>135</td></tr>
+        <tr><td>90</td><td>95</td></tr>
+        <tr><td>APAC</td><td colspan="2">no data</td></tr>
+      </tbody>
+    </table>
+
+    <h2>3. Header cells in the first row, no thead</h2>
+    <table>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr><td>host</td><td>example.com</td></tr>
+      <tr><td>port</td><td>443</td></tr>
+    </table>
+
+    <h2>4. No headers at all</h2>
+    <table>
+      <tr><td>alpha</td><td>1</td></tr>
+      <tr><td>beta</td><td>2</td></tr>
+    </table>
+
+    <h2>5. Nested table (outer + inner both detected)</h2>
+    <table>
+      <tr><th>Order</th><th>Items</th></tr>
+      <tr>
+        <td>#1001</td>
+        <td>
+          <table>
+            <tr><th>SKU</th><th>Qty</th></tr>
+            <tr><td>AB-1</td><td>2</td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <h2>6. ARIA grid built from divs, with form controls</h2>
+    <div class="grid" role="table" aria-label="Team roster">
+      <div role="row">
+        <div role="columnheader">Name</div>
+        <div role="columnheader">Role</div>
+        <div role="columnheader">Active</div>
+      </div>
+      <div role="row">
+        <div role="cell">Ada</div>
+        <div role="cell"><input type="text" value="Engineer" /></div>
+        <div role="cell"><input type="checkbox" checked /></div>
+      </div>
+      <div role="row">
+        <div role="cell">Linus</div>
+        <div role="cell">
+          <select>
+            <option>Designer</option>
+            <option selected>Kernel wrangler</option>
+          </select>
+        </div>
+        <div role="cell"><input type="checkbox" /></div>
+      </div>
+    </div>
+
+    <h2>Should be ignored: single-cell layout table</h2>
+    <table><tr><td>just a layout wrapper</td></tr></table>
+
+    <h2>Should be ignored: hidden table</h2>
+    <table style="display: none">
+      <tr><td>hidden a</td><td>hidden b</td></tr>
+    </table>
+
+    <h2>Harness output</h2>
+    <pre id="results">Run runTests() from the console, or open this page with ?autorun=1</pre>
+
+    <!--
+      Minimal chrome shim so content.js can be loaded straight into a plain page
+      for testing. The real extension supplies these APIs.
+    -->
+    <script>
+      let handler = null;
+      window.chrome = {
+        runtime: {
+          onMessage: { addListener: (fn) => (handler = fn) },
+          onConnect: { addListener: () => {} }
+        }
+      };
+      window.ask = (message) =>
+        new Promise((resolve) => handler(message, null, resolve));
+
+      window.runTests = async () => {
+        const out = [];
+        const assert = (label, actual, expected) => {
+          const a = JSON.stringify(actual);
+          const e = JSON.stringify(expected);
+          out.push(`${a === e ? 'PASS' : 'FAIL'}  ${label}`);
+          if (a !== e) out.push(`      expected ${e}\n      actual   ${a}`);
+        };
+
+        const scan = await window.ask({ type: 'scan' });
+        // 7 = six top-level fixtures + the table nested inside fixture 5.
+        // The single-cell layout table and the display:none table are skipped.
+        assert('detects 7 tables', scan.tables.length, 7);
+        assert(
+          'names come from caption / aria-label / heading',
+          scan.tables.map((t) => t.name),
+          [
+            '1. Plain table with a header row',
+            'Quarterly revenue',
+            '3. Header cells in the first row, no thead',
+            '4. No headers at all',
+            '5. Nested table (outer + inner both detected)',
+            '5. Nested table (outer + inner both detected)',
+            'Team roster'
+          ]
+        );
+        assert(
+          'nested table flagged as nested',
+          scan.tables.map((t) => t.nested),
+          [false, false, false, false, false, true, false]
+        );
+
+        // Index, not name: a nested table inherits its parent's heading.
+        const data = [];
+        for (const t of scan.tables) {
+          data.push((await window.ask({ type: 'extract', id: t.id })).data);
+        }
+
+        const plain = data[0];
+        assert('plain headers', plain.headers, ['Product', 'Price', 'Stock']);
+        assert('plain row count', plain.rows.length, 3);
+        assert('quotes survive extraction', plain.rows[2][0], 'He said "hi"');
+
+        const spans = data[1];
+        assert('two-row header collapses', spans.headers, ['Region', '2024 Q1', '2024 Q2']);
+        assert('rowspan repeats value', spans.rows.map((r) => r[0]), ['EMEA', 'EMEA', 'APAC']);
+        assert('colspan repeats value', spans.rows[2], ['APAC', 'no data', 'no data']);
+
+        const kv = data[2];
+        assert('th-only first row is a header', kv.headers, ['Key', 'Value']);
+        assert('body excludes the header row', kv.rows.length, 2);
+
+        const bare = data[3];
+        assert('no headers detected', bare.headers, null);
+        assert('all rows kept as data', bare.rows.length, 2);
+
+        const outer = data[4];
+        assert('nested table text excluded from parent cell', outer.rows[0][1], '');
+        assert('inner table extracted on its own', data[5].rows[0], ['AB-1', '2']);
+
+        const aria = data[6];
+        assert('aria headers', aria.headers, ['Name', 'Role', 'Active']);
+        assert('input value read', aria.rows[0][1], 'Engineer');
+        assert('checkbox state read', aria.rows[0][2], 'true');
+        assert('select value read', aria.rows[1][1], 'Kernel wrangler');
+
+        const failures = out.filter((line) => line.startsWith('FAIL')).length;
+        out.push('', `${failures === 0 ? 'ALL PASS' : failures + ' FAILING'}`);
+        document.getElementById('results').textContent = out.join('\n');
+        return out.join('\n');
+      };
+    </script>
+    <script src="../src/content/content.js"></script>
+    <script>
+      if (new URLSearchParams(location.search).has('autorun')) window.runTests();
+    </script>
+  </body>
+</html>
