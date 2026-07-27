@@ -157,4 +157,4 @@ Our other projects:
 
 ## License
 
-[MIT](LICENSE) © Ozan Dikbas
+[MIT](LICENSE)
